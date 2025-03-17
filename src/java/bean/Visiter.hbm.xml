@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="bean.Visiter" table="VISITER">
+        
+        <id name="codevi" type="int">
+            <column name="codevi" />
+            <generator class="increment"/>
+        </id>
+        
+        <property name="codemed" type="int">
+            <column name="codemed" />
+        </property>
+        
+        <property name="codepat" type="int">
+            <column name="codepat" />
+        </property>
+        
+        <property name="date" type="java.lang.String">
+            <column name="date" not-null="true"/>
+        </property>
+        
+        
+    </class>
+</hibernate-mapping>
