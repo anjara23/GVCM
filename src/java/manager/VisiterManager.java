@@ -8,6 +8,7 @@ package manager;
 import org.hibernate.Session;
 
 import bean.Visiter;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Transaction;
@@ -66,7 +67,7 @@ public class VisiterManager {
     }
     
     public void supprimerVi(int codevi){
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
         
         try{
@@ -75,7 +76,7 @@ public class VisiterManager {
             VisiterManager visiterManager = new VisiterManager();
             visiterManager.supprimerViByPat(codevi);
             
-            Visiter visite = (Visiter) session.load(Visiter.class, codevi);
+            Visiter visite = (Visiter) session.get(Visiter.class, codevi);
             if(visite != null){
                 session.delete(visite);
                 System.out.println("Visite supprimé avec succès");
@@ -97,7 +98,7 @@ public class VisiterManager {
     }
     
     public void modifierVi (int codevi, int codemed, int codepat, String nouvelleDate){
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;  
         
         try{
@@ -227,4 +228,67 @@ public class VisiterManager {
         }
     }
     
+    public Integer totalVi() {
+        Session session = HibernateUtil.getSessionFactory().openSession(); 
+        Transaction tx = null;
+        Integer total = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery("SELECT COUNT(v) FROM Visiter v "); 
+            List results = query.list();
+
+            if (!results.isEmpty()) {
+                Long result = (Long) results.get(0);
+                total = result.intValue();
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return total;
+    }
+    
+    public Integer viAuj() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        Integer total = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery(
+                "SELECT COUNT(v) FROM Visiter v WHERE v.date = :today"
+            );
+            query.setParameter("today", LocalDate.now().toString());
+
+            Long result = (Long) query.uniqueResult();
+            total = result.intValue();
+
+            tx.commit();
+            System.out.println("Date d'aujourd'hui : " + LocalDate.now());
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return total;
+    }
+
 }

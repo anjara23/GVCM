@@ -69,19 +69,16 @@ public class PatientManager {
     
     
     public void supprimerPatient(int codepat){
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-       
-        
-        session.getTransaction().commit();
-        
+                    
         try {
             tx = session.beginTransaction();
             
             VisiterManager visiterManager = new VisiterManager();
             visiterManager.supprimerViByPat(codepat);
             
-            Patient pat = (Patient) session.load(Patient.class, codepat);
+            Patient pat = (Patient) session.get(Patient.class, codepat);
             if(pat != null){
                 session.delete(pat);
                 System.out.println("Patient supprimé avec succès");
@@ -101,6 +98,7 @@ public class PatientManager {
             }
         }
     }
+    
     
     
     public void modifierPatient(int codepat, String nouveauNom, String nouveauPrenom, String nouveauSexe, String nouveauAdresse) {
@@ -174,5 +172,67 @@ public class PatientManager {
 
         return listePatients;
     }
+    
+    public Integer totalPat() {
+        Session session = HibernateUtil.getSessionFactory().openSession(); 
+        Transaction tx = null;
+        Integer total = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery("SELECT COUNT(p) FROM Patient p "); 
+            List results = query.list();
+
+            if (!results.isEmpty()) {
+                Long result = (Long) results.get(0);
+                total = result.intValue();
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return total;
+    }
+    
+    public Integer patVi() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        Integer total = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery(
+                "SELECT COUNT(DISTINCT v.codepat) FROM Visiter v"
+            );
+
+            Long result = (Long) query.uniqueResult();
+            total = result.intValue();
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return total;
+    }
+
     
 }

@@ -13,7 +13,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
+import org.json.JSONObject;
 /**
  *
  * @author LIANTSOA ANJARA
@@ -34,6 +36,13 @@ public class MedecinServlet extends HttpServlet{
         } else {           
             listeMedecins = medecinManager.getAllMed();
         }
+        
+        //cards
+        Integer totalMed = medecinManager.totalMed();
+        request.setAttribute("totalMed",totalMed);
+        
+        Integer medLib = medecinManager.medLibre();
+        request.setAttribute("medLib", medLib);
 
         request.setAttribute("listeMedecins",listeMedecins);
         RequestDispatcher dispatcher = request.getRequestDispatcher("Medecin.jsp");
@@ -51,22 +60,33 @@ public class MedecinServlet extends HttpServlet{
         String prenom = request.getParameter("prenom");
         String grade = request.getParameter("grade");
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JSONObject json = new JSONObject();
         
         try{
             if("supprimer".equals(action) && codemedStr != null && !codemedStr.isEmpty()){
-                int codeMedToDelete = Integer.parseInt(codemedStr);
-                //int codeMedToDelete = Integer.parseInt(request.getParameter("codemedToDelete")); ça dépend de html qui renvoie les donnés 
-                
+                int codeMedToDelete = Integer.parseInt(codemedStr);            
                 medecinManager.supprimerMedecin(codeMedToDelete);
                 System.out.println("Médecin" + codeMedToDelete + "et ses visites supprimés");
+                
+                    json.put("status", "success");
+                    json.put("message", "Medecin supprimé avec succès");                
+                
             } else if(nom != null && !nom.isEmpty() && prenom != null && !prenom.isEmpty()){
                 if(codemedStr == null || codemedStr.isEmpty()){
                     medecinManager.ajouterMedecin(nom, prenom, grade);
                     System.out.println("Nouveau médecin ajouté");
+                    
+                    json.put("status", "success");
+                    json.put("message", "Nouveau medecin ajouté avec succès");
                 } else{
                     int codemed = Integer.parseInt(codemedStr);
-                    medecinManager.modifierMedecin(codemed, prenom, prenom, grade);
+                    medecinManager.modifierMedecin(codemed, nom, prenom, grade);
                     System.out.println("Médecin modifié: "+codemed);
+                    
+                    json.put("status", "success");
+                    json.put("message", "Medecin modifié avec succès");
                 }
             } else{
                 System.out.println("Aucune action effectuée");
@@ -77,11 +97,15 @@ public class MedecinServlet extends HttpServlet{
             System.out.println("Erreur dans le traitement de la requête");
         }
         
-       
-        // Rediriger l'utilisateur vers la page Med
+        PrintWriter out = response.getWriter();
+        out.print(json.toString());
+        out.flush();
+        out.close();  
+        
+        /* Rediriger l'utilisateur vers la page Med
         List<Medecin> listeMedecins = medecinManager.getAllMed();
         request.setAttribute("listeMedecins", listeMedecins);
         RequestDispatcher dispatcher = request.getRequestDispatcher("Medecin.jsp");
-        dispatcher.forward(request, response);
+        dispatcher.forward(request, response);*/
     }
 }

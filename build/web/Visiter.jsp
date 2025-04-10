@@ -1,0 +1,661 @@
+
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="bean.Visiter" %>
+<%@ page import="bean.Patient" %>
+<%@ page import="bean.Medecin" %>
+<%@ page import="manager.VisiterManager" %>
+<%@ page import="manager.PatientManager" %>
+<%@ page import="manager.MedecinManager" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+
+<!DOCTYPE html>
+
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="./sneat/assets/"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>GVCM | Gestion des Visites dans un Centre Médical</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./sneat/assets/img/favicon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="./sneat/assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="./sneat/assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="./sneat/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="./sneat/assets/css/demo.css" />
+    <link rel="stylesheet" href="./bootstrap-table.css">
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="./sneat/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <!-- Page CSS -->
+
+    <link rel="stylesheet" href="./sneat/assets/vendor/css/pages/page-icons.css" />
+
+    <!-- Helpers -->
+    <script src="./sneat/assets/vendor/js/helpers.js"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="./sneat/assets/js/config.js"></script>
+  
+    <!-- sweat alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="index.jsp" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <svg
+                  width="25"
+                  viewBox="0 0 25 42"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+                  <defs>
+                    <path
+                      d="M13.7918663,0.358365126 L3.39788168,7.44174259 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.68998853,16.2305145 1.09562888,17.7872135 3.12357076,19.2293357 C3.8146334,19.7207684 5.32369333,20.3834223 7.65075054,21.2172976 L7.59773219,21.2525164 L2.63468769,24.5493413 C0.445452254,26.3002124 0.0884951797,28.5083815 1.56381646,31.1738486 C2.83770406,32.8170431 5.20850219,33.2640127 7.09180128,32.5391577 C8.347334,32.0559211 11.4559176,30.0011079 16.4175519,26.3747182 C18.0338572,24.4997857 18.6973423,22.4544883 18.4080071,20.2388261 C17.963753,17.5346866 16.1776345,15.5799961 13.0496516,14.3747546 L10.9194936,13.4715819 L18.6192054,7.984237 L13.7918663,0.358365126 Z"
+                      id="path-1"
+                    ></path>
+                    <path
+                      d="M5.47320593,6.00457225 C4.05321814,8.216144 4.36334763,10.0722806 6.40359441,11.5729822 C8.61520715,12.571656 10.0999176,13.2171421 10.8577257,13.5094407 L15.5088241,14.433041 L18.6192054,7.984237 C15.5364148,3.11535317 13.9273018,0.573395879 13.7918663,0.358365126 C13.5790555,0.511491653 10.8061687,2.3935607 5.47320593,6.00457225 Z"
+                      id="path-3"
+                    ></path>
+                    <path
+                      d="M7.50063644,21.2294429 L12.3234468,23.3159332 C14.1688022,24.7579751 14.397098,26.4880487 13.008334,28.506154 C11.6195701,30.5242593 10.3099883,31.790241 9.07958868,32.3040991 C5.78142938,33.4346997 4.13234973,34 4.13234973,34 C4.13234973,34 2.75489982,33.0538207 2.37032616e-14,31.1614621 C-0.55822714,27.8186216 -0.55822714,26.0572515 -4.05231404e-15,25.8773518 C0.83734071,25.6075023 2.77988457,22.8248993 3.3049379,22.52991 C3.65497346,22.3332504 5.05353963,21.8997614 7.50063644,21.2294429 Z"
+                      id="path-4"
+                    ></path>
+                    <path
+                      d="M20.6,7.13333333 L25.6,13.8 C26.2627417,14.6836556 26.0836556,15.9372583 25.2,16.6 C24.8538077,16.8596443 24.4327404,17 24,17 L14,17 C12.8954305,17 12,16.1045695 12,15 C12,14.5672596 12.1403557,14.1461923 12.4,13.8 L17.4,7.13333333 C18.0627417,6.24967773 19.3163444,6.07059163 20.2,6.73333333 C20.3516113,6.84704183 20.4862915,6.981722 20.6,7.13333333 Z"
+                      id="path-5"
+                    ></path>
+                  </defs>
+                  <g id="g-app-brand" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="Brand-Logo" transform="translate(-27.000000, -15.000000)">
+                      <g id="Icon" transform="translate(27.000000, 15.000000)">
+                        <g id="Mask" transform="translate(0.000000, 8.000000)">
+                          <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                          </mask>
+                          <use fill="#696cff" xlink:href="#path-1"></use>
+                          <g id="Path-3" mask="url(#mask-2)">
+                            <use fill="#696cff" xlink:href="#path-3"></use>
+                            <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-3"></use>
+                          </g>
+                          <g id="Path-4" mask="url(#mask-2)">
+                            <use fill="#696cff" xlink:href="#path-4"></use>
+                            <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-4"></use>
+                          </g>
+                        </g>
+                        <g
+                          id="Triangle"
+                          transform="translate(19.000000, 11.000000) rotate(-300.000000) translate(-19.000000, -11.000000) "
+                        >
+                          <use fill="#696cff" xlink:href="#path-5"></use>
+                          <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-5"></use>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2">GVCM</span>
+            </a>
+
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+              <i class="bx bx-chevron-left bx-sm align-middle"></i>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <!-- Medecin -->
+            <li class="menu-item">
+              <a href="Medecin" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-plus-medical"></i>
+                <div data-i18n="Analytics">Medecin</div>
+              </a>
+            </li>
+
+            <!-- Patient -->
+            <li class="menu-item">
+              <a href="Patient" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-group"></i>
+                <div data-i18n="Basic">Patient</div>
+              </a>
+            </li>
+
+            <!-- Visite -->
+            <li class="menu-item active">
+              <a href="Visiter" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-notepad"></i>
+                <div data-i18n="Boxicons">Visite</div>
+              </a>
+            </li>
+          </ul>
+
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-lg-8 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h5 class="card-title text-primary">Gestion des Visites</h5>
+                          <p class="mb-4">
+                            Vous pouvez cliquer sur le boutton ajouter pour ajouter une visite
+                          </p>
+                          <div class="mt-3">
+                            <!-- Button trigger modal -->
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#addVi"
+                            >
+                              Ajouter
+                            </button>
+    
+                            <!-- Modal -->
+                            <div class="modal fade" id="addVi" tabindex="-1" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel1">Ajout d'une visite</h5>
+                                    <button
+                                      type="button"
+                                      class="btn-close"
+                                      data-bs-dismiss="modal"
+                                      aria-label="Close"
+                                    ></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="row">
+                                      <div class="col mb-3">
+                                        <label for="nameBasic" class="form-label">CodeMed</label>
+                                        <select name="" id="codemed" class="form-control">
+                                          <% for (Medecin medecin : (List<Medecin>) request.getAttribute("listeMedecins")) { %>
+                                            <option value="<%= medecin.getCodemed() %>"><%= medecin.getCodemed() %> - <%= medecin.getNom() %> <%= medecin.getPrenom() %></option>
+                                          <% } %>
+                                        </select>                                      
+                                      </div>
+                                    </div>
+                                    <div class="row">
+                                      <div class="col mb-3">
+                                        <label for="nameBasic" class="form-label">CodePat</label>
+                                        <select name="" id="codepat" class="form-control">
+                                          <% for (Patient pat : (List<Patient>) request.getAttribute("listePatients1")) { %>
+                                            <option value="<%= pat.getCodepat() %>"><%= pat.getCodepat() %> - <%= pat.getNom() %> <%= pat.getPrenom() %></option>
+                                          <% } %>
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="row">
+                                      <div class="col mb-3">
+                                        <label for="dobBasic" class="form-label">Date</label>
+                                        <input type="date" id="date" class="form-control" placeholder="DD / MM / YY" />
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                      Fermer
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="Myfunc()">Enregistrer</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-5 text-center text-sm-left">
+                        <div class="card-body pb-0 px-0 px-md-4">
+                          <img
+                            src="./sneat/assets/img/illustrations/visite.png"
+                            height="140"
+                            alt="View Badge User"
+                            data-app-dark-img="illustrations/visite.png"
+                            data-app-light-img="illustrations/visite.png"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-4 order-1">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img
+                                src="./sneat/assets/img/icons/unicons/chart-success.png"
+                                alt="chart success"
+                                class="rounded"
+                              />
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Total Visites</span>
+                          <h3 class="card-title mb-2"><%= (Integer) request.getAttribute("totalVi") %></h3>
+                          <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i></small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img
+                                src="./sneat/assets/img/icons/unicons/chart.png"
+                                alt="chart success"
+                                class="rounded"
+                              />
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Visites aujourd'hui</span>
+                          <h3 class="card-title mb-2"><%= (Integer) request.getAttribute("viAuj") %></h3>
+                          <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i></small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>             
+                
+              </div>
+
+              <div class="row">
+                <!-- tableau-->
+                <div class="col-lg-12 ">
+                  <div class="card">
+                    <div class="card-datatable text-nowrap">
+                      <table class="datatables-basic table table-bordered table-responsive" id="DataTables_Table_0">
+                        <thead>
+                          <tr>
+                            <th>CodeMed</th>
+                            <th>Nom medecin</th>
+                            <th>CodePat</th>
+                            <th>Nom patient</th>
+                            <th>Date</th>
+                            <th class="d-flex align-items-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% for (Visiter visite : (List<Visiter>) request.getAttribute("listeVisiter")) { %>
+                            <tr>
+                              <td class="num"><%= visite.getCodemed() %></td>
+                              <td>
+                                <% for (Medecin medecin : (List<Medecin>) request.getAttribute("listeMedecins")) {
+                                  String selected = (medecin.getCodemed() == visite.getCodemed()) ? medecin.getNom() : "";
+                                %>
+                                <%= selected %>
+                                <% } %>
+                              </td>
+                              <td class="num"><%= visite.getCodepat() %></td>
+                                <td>
+                                  <% for (Patient pat : (List<Patient>) request.getAttribute("listePatients1")) { 
+                                    String selected = (pat.getCodepat() == visite.getCodepat()) ? pat.getNom() : "";
+                                  %>
+                                  <%= selected %>
+                                  <% } %>
+                                </td>
+                              <td><%= visite.getDate() %></td>                              
+                              <td class="actionB">
+                                <div class="demo-inline-spacing">
+                                  <button type="button" class="btn btn-icon btn-primary"  data-bs-toggle="modal" data-bs-target="#modal<%= visite.getCodevi() %>" >
+                                    <i class="bx bx-edit-alt me-1"></i>
+                                  </button>
+            
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modal<%= visite.getCodevi() %>" tabindex="-1" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel1">Modification du visite de Codepat <strong> <%= visite.getCodepat()%></strong> et Codemed <strong><%= visite.getCodemed()%></strong> </h5>
+                                            <button
+                                              type="button"
+                                              class="btn-close"
+                                              data-bs-dismiss="modal"
+                                              aria-label="Close"
+                                            ></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <div class="row">
+                                              <div class="col mb-3">
+                                                <label for="nameBasic" class="form-label">Codemed</label>
+                                                <select name="" id="codemed-<%= visite.getCodevi() %>" class="form-control">
+                                                  <% for (Medecin medecin : (List<Medecin>) request.getAttribute("listeMedecins")) {
+                                                    String selected = (medecin.getCodemed() == visite.getCodemed()) ? "selected" : "";
+                                                  %>
+                                                    <!-- <option value="<%= visite.getCodemed()%>"><%= medecin.getCodemed() %> - <%= medecin.getNom() %> <%= medecin.getPrenom() %></option> -->
+                                                    <option value="<%= medecin.getCodemed() %>" <%= selected %>>
+                                                      <%= medecin.getCodemed() %> - <%= medecin.getNom() %> <%= medecin.getPrenom() %>
+                                                    </option>
+                                                  <% } %>
+                                                </select> 
+                                              </div>
+                                            </div>
+                                            <div class="row">
+                                              <div class="col mb-3">
+                                                <label for="nameBasic" class="form-label">Codepat</label>
+                                                <select name="" id="codepat-<%= visite.getCodevi() %>" class="form-control">
+                                                  <% for (Patient pat : (List<Patient>) request.getAttribute("listePatients1")) { 
+                                                    String selected = (pat.getCodepat() == visite.getCodepat()) ? "selected" : "";
+                                                  %>
+                                                    <!-- <option value="<%= visite.getCodepat()%>"><%= pat.getCodepat() %> - <%= pat.getNom() %> <%= pat.getPrenom() %></option> -->
+                                                    <option value="<%= pat.getCodepat() %>" <%= selected %>>
+                                                      <%= pat.getCodepat() %> - <%= pat.getNom() %> <%= pat.getPrenom() %>
+                                                    </option>
+                                                  <% } %>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="row">
+                                              <div class="col mb-3">
+                                                <label for="dobBasic" class="form-label">Date</label>
+                                                <input type="date" id="date-<%= visite.getCodevi() %>" class="form-control" value="<%= visite.getDate() %>" />
+                                              </div>
+                                            </div>
+                                          
+        
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                              Fermer
+                                            </button>
+                                            <button type="button" class="btn btn-primary"
+                                              onclick="submitUpdate('<%= visite.getCodevi() %>')"
+                                              data-bs-dismiss="modal"
+                                            >Enregistrer</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-icon btn-secondary" data-bs-toggle="modal" data-bs-target="#modalSup<%= visite.getCodevi() %>">
+                                      <!-- <input type="hidden" name="action" value="supprimer">
+                                      <input type="hidden" name="idvisiteToDelete" id="1" value="<%= visite.getCodevi()%>"> -->
+                                      <i class="bx bx-trash me-1"></i>
+                                    </button>
+
+                                      <div class="modal fade" id="modalSup<%= visite.getCodevi() %>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="modalLongTitle">Suppression d'une visite</h5>
+                                              <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                              ></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <p>
+                                                Voulez vous vraiment supprimer la visite de Codepat  <strong> <%= visite.getCodepat()%></strong> et Codemed <strong><%= visite.getCodemed()%></strong>?
+                                              </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                              <button type="button" class="btn btn-outline-secondary" onclick="delet('<%= visite.getCodevi()%>')" data-bs-dismiss="modal">
+                                                Oui
+                                              </button>
+                                              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Non</button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+  
+                                </div>
+                              </td>
+                            </tr>
+                          
+                          <% } %>
+  
+                        </tbody>
+                      </table>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Content -->
+
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="./sneat/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="./sneat/assets/vendor/libs/popper/popper.js"></script>
+    <script src="./sneat/assets/vendor/js/bootstrap.js"></script>
+    <script src="./sneat/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+    <script src="./sneat/assets/vendor/js/menu.js"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+
+    <!-- Main JS -->
+    <script src="./sneat/assets/js/main.js"></script>
+
+    <!-- Page JS -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="./bootstrap-tab.js"></script>
+    <script src="./bootstrap-table.js"></script>
+    <script>
+
+      function Myfunc(){
+        let codemed = $("#codemed").val(); 
+        let codepat = $("#codepat").val();
+        let date = $("#date").val();
+
+        let maforme = {
+          codemed : codemed,
+          codepat : codepat,
+          date : date,         
+        };
+        $.ajax({
+          type:"POST",
+          url:'/GVCM/Visiter',
+          data : maforme,
+          dataType: "json",
+          success: function (response) {
+              $("#addVi").modal("hide");  
+              console.log("Réponse reçue : ", response);
+              console.log(maforme);
+              
+
+              if (response && response.status === "success") {
+                  Swal.fire({
+                      title: "Succès !",
+                      text: response.message,
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          location.reload();  // recharge la page
+                      }
+                  });
+              } else {
+                Swal.fire({
+                  title: "Erreur !",
+                  text: response.message,
+                  icon: "error"
+                });
+                  console.log("❌ Erreur ou réponse inattendue");
+              }
+          }
+        });
+
+        
+      }
+
+      function update(codevi,codemed,codepat,date) {
+        let maforme = {
+          codevi : codevi,
+          codemed : codemed,
+          codepat : codepat,
+          date : date,
+        };
+
+        $.ajax({
+          type:"POST",
+          url:'/GVCM/Visiter',
+          data : maforme,
+          dataType: "json",
+          success: function (response) {
+              $("#addVi").modal("hide");  
+              console.log("Réponse reçue : ", response);
+              console.log(maforme);
+              
+
+              if (response && response.status === "success") {
+                  Swal.fire({
+                      title: "Succès !",
+                      text: response.message,
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          location.reload();  // recharge la page
+                      }
+                  });
+              } else {
+                Swal.fire({
+                  title: "Erreur !",
+                  text: response.message,
+                  icon: "error"
+                });
+                  console.log("❌ Erreur ou réponse inattendue");
+              }
+          }
+        });
+        
+
+        
+      }
+
+      function submitUpdate(codevi) {
+        const codemed = document.getElementById("codemed-" + codevi).value;
+        const codepat = document.getElementById("codepat-" + codevi).value;
+        const date = document.getElementById("date-" + codevi).value;
+
+        update(codevi, codemed, codepat, date);
+      }
+      
+
+      function clearImp(){
+        $(".form input").val("");
+      }
+
+      function delet(codevi){
+        
+        let maforme = {
+          codevi : codevi,
+          action : "supprimer"
+        };
+
+        $.ajax({
+          type:"POST",
+          url:'/GVCM/Visiter',
+          data : maforme,
+          dataType: "json",
+          success: function (response) {
+              $("#addVi").modal("hide");  
+              console.log("Réponse reçue : ", response);
+              console.log(maforme);
+
+              if (response && response.status === "success") {
+                  Swal.fire({
+                      title: "Succès !",
+                      text: response.message,
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          location.reload();  // recharge la page
+                      }
+                  });
+              } else {
+                Swal.fire({
+                  title: "Erreur !",
+                  text: response.message,
+                  icon: "error"
+                });
+                  console.log("❌ Erreur ou réponse inattendue");
+              }
+          }
+        });
+        
+      }
+    
+    </script>
+  </body>
+  <script>
+    new DataTable('#DataTables_Table_0', {
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
+        }
+    });
+
+  </script>
+</html>

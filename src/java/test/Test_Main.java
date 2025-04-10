@@ -41,9 +41,23 @@ public class Test_Main {
        visite.modifierVi(2, 2, 2, "29-03-2025");
        HibernateUtil.sessionFactory.close();*/
        
-       MedecinManager med = new MedecinManager();
+       /*MedecinManager med = new MedecinManager();
        med.supprimerMedecin(1);
        HibernateUtil.sessionFactory.close();
        
+       PatientManager pat = new PatientManager();
+       pat.modifierPatient(1, "ZA", "ZA", "Femme", "IIP138 Imerimanjaka");
+       HibernateUtil.sessionFactory.close();
+       
+       int total = new MedecinManager().medLibre();
+       System.out.println("Nombre total de médecins libres : " + total);
+       
+       int total = new PatientManager().patVi();
+       System.out.println("Nombre total de patients à visiter : " + total);
+       */
+       
+       int total = new VisiterManager().viAuj();
+       System.out.println("Nombre total de visite auj : " + total);
+
     }
 }

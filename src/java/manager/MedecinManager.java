@@ -67,18 +67,16 @@ public class MedecinManager {
        
     
     public void supprimerMedecin(int codemed){
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx= null;
         
-        
-        session.getTransaction().commit();
         try {
             tx = session.beginTransaction();
             
             VisiterManager visiterManager = new VisiterManager();
             visiterManager.supprimerViByMed(codemed);
             
-            Medecin med = (Medecin) session.load(Medecin.class, codemed);
+            Medecin med = (Medecin) session.get(Medecin.class, codemed);
             if(med != null){
                 session.delete(med);
                 System.out.println("Médecin supprimé avec succès");
@@ -173,4 +171,66 @@ public class MedecinManager {
         return listeMedecins;
     }
     
+    public Integer totalMed() {
+        Session session = HibernateUtil.getSessionFactory().openSession(); // plutôt openSession ici
+        Transaction tx = null;
+        Integer total = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery("SELECT COUNT(m) FROM Medecin m "); 
+            List results = query.list();
+
+            if (!results.isEmpty()) {
+                Long result = (Long) results.get(0);
+                total = result.intValue();
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return total;
+    }
+    
+     public Integer medLibre() {
+        Session session = HibernateUtil.getSessionFactory().openSession(); // plutôt openSession ici
+        Transaction tx = null;
+        Integer libre = 0;
+
+        try {
+            tx = session.beginTransaction();
+
+            Query query = session.createQuery("SELECT COUNT(m) FROM Medecin m WHERE m.codemed NOT IN (SELECT v.codemed FROM Visiter v)"); 
+            List results = query.list();
+
+            if (!results.isEmpty()) {
+                Long result = (Long) results.get(0);
+                libre = result.intValue();
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return libre;
+    }
+
 }

@@ -10,8 +10,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import manager.PatientManager;
+import org.json.JSONObject;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -39,6 +41,13 @@ public class PatientServlet extends HttpServlet{
             listePatients = patientManager.getAllPat();
         }
 
+        //cards
+        Integer totalPat = patientManager.totalPat();
+        request.setAttribute("totalPat",totalPat);
+        
+        Integer patVi = patientManager.patVi();
+        request.setAttribute("patVi",patVi);        
+        
         request.setAttribute("listePatients",listePatients);
         RequestDispatcher dispatcher = request.getRequestDispatcher("Patient.jsp");
         dispatcher.forward(request, response);
@@ -55,6 +64,10 @@ public class PatientServlet extends HttpServlet{
         String prenom = request.getParameter("prenom");
         String sexe = request.getParameter("sexe");
         String adresse = request.getParameter("adresse");
+        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JSONObject json = new JSONObject();
 
         
         try{
@@ -65,15 +78,28 @@ public class PatientServlet extends HttpServlet{
                 patientManager.supprimerPatient(codepatToDelete);
                 System.out.println("Patient" + codepatToDelete + "et ses visites supprimés");
                 
-            } else if(nom != null && !nom.isEmpty() && prenom != null && !prenom.isEmpty()){
+                    json.put("status", "success");
+                    json.put("message", "Patient supprimé avec succès");
+                
+                
+            } else if(nom != null && !nom.isEmpty() && prenom != null && !prenom.isEmpty() && sexe != null && !sexe.isEmpty() && adresse != null && !adresse.isEmpty()){
                 if(codepatStr == null || codepatStr.isEmpty()){
                     patientManager.ajouterPatient(nom, prenom, sexe, adresse);
-                    System.out.println("Nouveau patient ajouté");
+                    
+                    json.put("status", "success");
+                    json.put("message", "Nouveau patient ajouté avec succès");
+                    
                 } else{
                     int codepat = Integer.parseInt(codepatStr);
-                    patientManager.modifierPatient(codepat, prenom, prenom, sexe, adresse);
+                    patientManager.modifierPatient(codepat, nom, prenom, sexe, adresse);
                     System.out.println("Médecin modifié: "+codepat);
+                    
+                    json.put("status", "success");
+                    json.put("message", "Patient modifié avec succès");
                 }
+                
+
+                
             } else{
                 System.out.println("Aucune action effectuée");
             }
@@ -82,12 +108,17 @@ public class PatientServlet extends HttpServlet{
             e.printStackTrace();
             System.out.println("Erreur dans le traitement de la requête");
         }
-        
+
+        PrintWriter out = response.getWriter();
+        out.print(json.toString());
+        out.flush();
+        out.close();
+                        
        
-        // Rediriger l'utilisateur vers la page Med
+        /* Rediriger l'utilisateur vers la page Med
         List<Patient> listePatients = patientManager.getAllPat();
         request.setAttribute("listePatients", listePatients);
         RequestDispatcher dispatcher = request.getRequestDispatcher("Patient.jsp");
-        dispatcher.forward(request, response);
+        dispatcher.forward(request, response);*/
     } 
 }
